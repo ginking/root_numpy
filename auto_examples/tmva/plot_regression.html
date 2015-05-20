@@ -1,0 +1,202 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+
+    <title>Regression with NumPy and TMVA &mdash; root_numpy 4.2.0.dev0 documentation</title>
+
+<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
+
+
+    
+    <link rel="stylesheet" href="../../_static/rtd.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '4.2.0.dev0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../_static/searchtools.js"></script>
+    <link rel="top" title="root_numpy 4.2.0.dev0 documentation" href="../../index.html" />
+    <link rel="up" title="TMVA" href="../index.html" />
+    <link rel="next" title="Binary Classification with NumPy and TMVA" href="plot_twoclass.html" />
+    <link rel="prev" title="Multiclass Classification with NumPy and TMVA" href="plot_multiclass.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="plot_twoclass.html" title="Binary Classification with NumPy and TMVA"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="plot_multiclass.html" title="Multiclass Classification with NumPy and TMVA"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../../index.html">root_numpy 4.2.0.dev0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">TMVA</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="regression-with-numpy-and-tmva">
+<span id="example-tmva-plot-regression-py"></span><h1>Regression with NumPy and TMVA<a class="headerlink" href="#regression-with-numpy-and-tmva" title="Permalink to this headline">¶</a></h1>
+<a class="reference internal image-reference" href="../../_images/plot_regression_1.png"><img alt="../../_images/plot_regression_1.png" class="align-center" src="../../_images/plot_regression_1.png" style="width: 640.0px; height: 480.0px;" /></a>
+<p><strong>Python source code:</strong> <a class="reference download internal" href="../../_downloads/plot_regression.py"><tt class="xref download docutils literal"><span class="pre">plot_regression.py</span></tt></a></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">root_numpy.tmva</span> <span class="kn">import</span> <span class="n">add_regression_events</span><span class="p">,</span> <span class="n">evaluate_reader</span>
+<span class="kn">from</span> <span class="nn">ROOT</span> <span class="kn">import</span> <span class="n">TMVA</span><span class="p">,</span> <span class="n">TFile</span><span class="p">,</span> <span class="n">TCut</span>
+<span class="kn">from</span> <span class="nn">array</span> <span class="kn">import</span> <span class="n">array</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s">&#39;ggplot&#39;</span><span class="p">)</span>
+<span class="n">RNG</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c"># Create an example regression dataset</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">100</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span> <span class="o">+</span> \
+    <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span> <span class="o">+</span> \
+    <span class="n">RNG</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="c"># Fit a regression model</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">TFile</span><span class="p">(</span><span class="s">&#39;tmva_output.root&#39;</span><span class="p">,</span> <span class="s">&#39;recreate&#39;</span><span class="p">)</span>
+<span class="n">factory</span> <span class="o">=</span> <span class="n">TMVA</span><span class="o">.</span><span class="n">Factory</span><span class="p">(</span><span class="s">&#39;regressor&#39;</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span>
+                       <span class="s">&#39;AnalysisType=Regression:&#39;</span>
+                       <span class="s">&#39;!V:Silent:!DrawProgressBar&#39;</span><span class="p">)</span>
+<span class="n">factory</span><span class="o">.</span><span class="n">AddVariable</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;F&#39;</span><span class="p">)</span>
+<span class="n">factory</span><span class="o">.</span><span class="n">AddTarget</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="s">&#39;F&#39;</span><span class="p">)</span>
+
+<span class="n">add_regression_events</span><span class="p">(</span><span class="n">factory</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">add_regression_events</span><span class="p">(</span><span class="n">factory</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="c"># The following line is necessary if events have been added individually:</span>
+<span class="n">factory</span><span class="o">.</span><span class="n">PrepareTrainingAndTestTree</span><span class="p">(</span><span class="n">TCut</span><span class="p">(</span><span class="s">&#39;1&#39;</span><span class="p">),</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
+
+<span class="n">factory</span><span class="o">.</span><span class="n">BookMethod</span><span class="p">(</span><span class="s">&#39;BDT&#39;</span><span class="p">,</span> <span class="s">&#39;BDT1&#39;</span><span class="p">,</span>
+                   <span class="s">&#39;nCuts=20:NTrees=1:MaxDepth=4:BoostType=AdaBoostR2:&#39;</span>
+                   <span class="s">&#39;SeparationType=RegressionVariance&#39;</span><span class="p">)</span>
+<span class="n">factory</span><span class="o">.</span><span class="n">BookMethod</span><span class="p">(</span><span class="s">&#39;BDT&#39;</span><span class="p">,</span> <span class="s">&#39;BDT2&#39;</span><span class="p">,</span>
+                   <span class="s">&#39;nCuts=20:NTrees=300:MaxDepth=4:BoostType=AdaBoostR2:&#39;</span>
+                   <span class="s">&#39;SeparationType=RegressionVariance&#39;</span><span class="p">)</span>
+<span class="n">factory</span><span class="o">.</span><span class="n">TrainAllMethods</span><span class="p">()</span>
+
+<span class="c"># Predict the regression target</span>
+<span class="n">reader</span> <span class="o">=</span> <span class="n">TMVA</span><span class="o">.</span><span class="n">Reader</span><span class="p">()</span>
+<span class="n">reader</span><span class="o">.</span><span class="n">AddVariable</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="n">array</span><span class="p">(</span><span class="s">&#39;f&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.</span><span class="p">]))</span>
+<span class="n">reader</span><span class="o">.</span><span class="n">BookMVA</span><span class="p">(</span><span class="s">&#39;BDT1&#39;</span><span class="p">,</span> <span class="s">&#39;weights/regressor_BDT1.weights.xml&#39;</span><span class="p">)</span>
+<span class="n">reader</span><span class="o">.</span><span class="n">BookMVA</span><span class="p">(</span><span class="s">&#39;BDT2&#39;</span><span class="p">,</span> <span class="s">&#39;weights/regressor_BDT2.weights.xml&#39;</span><span class="p">)</span>
+<span class="n">y_1</span> <span class="o">=</span> <span class="n">evaluate_reader</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="s">&#39;BDT1&#39;</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+<span class="n">y_2</span> <span class="o">=</span> <span class="n">evaluate_reader</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="s">&#39;BDT2&#39;</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+
+<span class="c"># Plot the results</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s">&quot;k&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">&quot;training samples&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y_1</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s">&quot;g&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">&quot;1 tree&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y_2</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s">&quot;r&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">&quot;300 trees&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;data&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;target&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&quot;Boosted Decision Tree Regression&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Total running time of the example:</strong>  1.60 seconds</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="plot_multiclass.html"
+                        title="previous chapter">Multiclass Classification with NumPy and TMVA</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="plot_twoclass.html"
+                        title="next chapter">Binary Classification with NumPy and TMVA</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/auto_examples/tmva/plot_regression.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="plot_twoclass.html" title="Binary Classification with NumPy and TMVA"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="plot_multiclass.html" title="Multiclass Classification with NumPy and TMVA"
+             >previous</a> |</li>
+        <li><a href="../../index.html">root_numpy 4.2.0.dev0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >TMVA</a> &raquo;</li> 
+      </ul>
+    </div>
+<div class="footer">
+    &copy; Copyright 2015, rootpy developers and contributors.
+</div>
+
+
+
+<!-- Google Analytics Code -->
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-39364267-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+
+
+  </body>
+</html>
